@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+// import React, { useState } from "react";
 
 class Process {
+  name: string;
   arrivalTime: number;
   totalCPUTime: number;
   remainingCPUTime: number;
   turnaroundTime: number;
  
-  constructor(arrival: number, total: number) {
+  constructor(name: string, arrival: number, total: number) {
+    this.name = name;
     this.arrivalTime = arrival;
     this.totalCPUTime = total;
     this.remainingCPUTime = total;
@@ -14,16 +16,18 @@ class Process {
   }
 }
  
-export const p1 = new Process(3, 5);
-export const p2 = new Process(4,4);
-export const p3 = new Process(1,3);
+export const p1 = new Process('p1', 3, 5);
+export const p2 = new Process('p2', 4,4);
+export const p3 = new Process('p3', 1,3);
 
 // export const FIFO = (...args: Process[]) => {
 export const FIFO = (args: Process[] = [p1, p2, p3]) => {
   // complete is true when all processes are done
   let complete: boolean = false;
   let queue: Process[] = args;
-  let running: Process;
+  let running: boolean = false;
+  let runningProcess!: Process;
+  let timer: number = 0;
 
   // sort queue based on arrival time:
   //  - if 1 is returned, p2 is sorted before p1 (p2.arrival < p1.arrival)
@@ -33,16 +37,30 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
 
   // run until all processes are finished running
   while(!complete) {
-    // check if any processes are still running
-    complete = true;
-    for(let i = 0; i < args.length; i++) {
-      if(args[i].arrivalTime != 0) {
-        complete = false;
+    // increment "timer"
+    timer++;
+
+    if(queue.length > 0) {
+      // take next process in queue and place it in running if no process is running,
+      // otherwise, wait until process is done
+      if(running === false) {
+        running = true;
+        runningProcess = queue.shift()!;
+        console.log('%s is running at time %d', runningProcess.name, timer);
+      }
+
+      // decrement remaining time of running process
+      runningProcess.remainingCPUTime--;
+
+      // do we need a new process?
+      if(runningProcess.remainingCPUTime === 0) {
+        running = false;
+        runningProcess.turnaroundTime = timer - runningProcess.arrivalTime;
+        console.log('%s is done running at time %d', runningProcess.name, timer);
       }
     }
-
-    // if any processes are not complete, then proceed
-    if(!complete) {
+    else {
+      console.log('queue is empty, we\'re done!');
       complete = true;
     }
   }
