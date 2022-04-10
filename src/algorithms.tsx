@@ -1,5 +1,7 @@
 // import React, { useState } from "react";
 
+import { exit } from "node:process";
+
 class Process {
   name: string;
   arrivalTime: number;
@@ -28,6 +30,8 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
   let running: boolean = false;
   let runningProcess!: Process;
   let timer: number = 0;
+  let avgTurnaroundTime: number = 0;
+  const numOfProcesses: number = args.length;
 
   // sort queue based on arrival time:
   //  - if 1 is returned, p2 is sorted before p1 (p2.arrival < p1.arrival)
@@ -37,18 +41,31 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
 
   // run until all processes are finished running
   while(!complete) {
-    // increment "timer"
-    timer++;
-
     if(queue.length > 0) {
       // take next process in queue and place it in running if no process is running,
       // otherwise, wait until process is done
       if(running === false) {
-        running = true;
-        runningProcess = queue.shift()!;
-        console.log('%s is running at time %d', runningProcess.name, timer);
+        // a process can only run once it has arrived
+        if(queue[0].arrivalTime <= timer) {
+          running = true;
+          runningProcess = queue.shift()!;
+          console.log('%s is running at time %d', runningProcess.name, timer);
+        }
+        else {
+          console.log('nothing is running at time %d', timer);
+        }
       }
+    }
+    else {
+      console.log('queue is empty!');
+    }
 
+    // increment "timer"
+    timer++;
+
+    // if no process is running, then don't touch the runningProcess (because
+    // there is no running process...)
+    if(running === true) {
       // decrement remaining time of running process
       runningProcess.remainingCPUTime--;
 
@@ -57,11 +74,18 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
         running = false;
         runningProcess.turnaroundTime = timer - runningProcess.arrivalTime;
         console.log('%s is done running at time %d', runningProcess.name, timer);
+        avgTurnaroundTime += runningProcess.turnaroundTime;
+        console.log(runningProcess);
       }
     }
-    else {
-      console.log('queue is empty, we\'re done!');
+
+    if(queue.length === 0 && running === false) {
       complete = true;
+      console.log('we\'re done!');
+      console.log('Total Time: %d', timer);
+
+      avgTurnaroundTime = avgTurnaroundTime / numOfProcesses;
+      console.log('Average Turnaround Time: %f', avgTurnaroundTime);
     }
   }
 }
