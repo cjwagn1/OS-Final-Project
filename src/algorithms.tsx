@@ -309,6 +309,7 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
   let running: boolean = false;
   let runningProcess!: Process;
   let timer: number = 0;
+  let counter: number = 0;
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
   let temp: Process;
@@ -352,6 +353,9 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
     if(running === true) {
       // decrement remaining time of running process
       runningProcess.remainingCPUTime--;
+
+      // increment counter to determine when we reach a time quantum
+      counter++;
   
       // is the process done?
       if(runningProcess.remainingCPUTime === 0) {
@@ -360,15 +364,24 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
         console.log('%s is done running at time %d', runningProcess.name, timer);
         avgTurnaroundTime += runningProcess.turnaroundTime;
         console.log(runningProcess);
+
+        // reset counter since the process is no longer running
+        counter = 0;
       }
 
       // swap the process if we've reached the next time quantum
-      if(running && timer % timeQuantum === 0 && queue.length > 0) {
+      if(counter === timeQuantum && queue.length > 0) {
         temp = runningProcess;
         console.log('%s is moved back to queue at time %d', temp.name, timer);
         runningProcess = queue.shift()!;
         console.log('%s is running at time %d', runningProcess.name, timer);
         queue.push(temp);
+      }
+      else if(counter === timeQuantum && queue.length === 0) {
+        // reset counter so we make sure we keep checking for a swap
+        // at each time quantum
+        counter = 0;
+        console.log('nothing in queue to swap with');
       }
     }
   
