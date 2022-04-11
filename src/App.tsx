@@ -1,5 +1,5 @@
 import './App.css';
-import { FIFO, SJF, SRT } from './algorithms'
+import { FIFO, SJF, SRT, RR } from './algorithms'
 
 function App() {
   const buttonHandler = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -20,6 +20,10 @@ function App() {
         SRT();
         break;
       }
+      case 'RR': {
+        RR(1); // have to give it a time quantum
+        break;
+      }
     }
   };
 
@@ -28,7 +32,7 @@ function App() {
       <button onClick={buttonHandler}>FIFO</button>
       <button onClick={buttonHandler}>SJF</button>
       <button onClick={buttonHandler}>SRT</button>
-      <button>RR</button>
+      <button onClick={buttonHandler}>RR</button>
     </div>
   );
 }
