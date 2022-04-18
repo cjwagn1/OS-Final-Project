@@ -1,0 +1,16 @@
+{
+  "processes": [
+    {
+      "totalCPUTime": 2,
+      "arrivalTime": 3
+    },
+    {
+      "totalCPUTime": 6,
+      "arrivalTime": 2
+    },
+    {
+      "totalCPUTime": 2,
+      "arrivalTime": 0
+    }
+  ]
+}
