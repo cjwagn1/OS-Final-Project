@@ -10,15 +10,38 @@ interface IProcessGridProps {
 
 const ProcessGrid: AnyStyledComponent = styled.div`
   display: grid;
+  margin: 4px;
   grid-template-columns: repeat(
     ${(props: IProcessGridProps) => props.maxGridTime},
     1fr
   );
-  gap: 10px;
+  grid-gap: 10px;
   grid-template-rows: repeat(
     ${(props: IProcessGridProps) => props.numOfProcesses},
     1fr
   );
+
+  > div {
+    text-align: center;
+    border: 1px blue solid;
+  }
+`;
+
+const NumberGrid: AnyStyledComponent = styled.div`
+  display: grid;
+  margin: 4px;
+  grid-template-columns: repeat(
+    ${(props: IProcessGridProps) => props.maxGridTime},
+    1fr
+  );
+  grid-gap: 10px;
+  grid-template-rows: repeat(1, 1fr);
+
+  > div {
+    text-align: center;
+    color: red;
+    border: 1px red solid;
+  }
 `;
 
 export default () => {
@@ -35,10 +58,27 @@ export default () => {
   });
 
   return (
-    <ProcessGrid numOfProcesses={processCount} maxGridTime={maxGridSize + 2}>
-      <motion.div animate={{ scale: 2 }} transition={{ duration: 0.5 }}>
-        Animation
-      </motion.div>
-    </ProcessGrid>
+    <div>
+      <NumberGrid maxGridTime={maxGridSize}>
+        {[...Array(maxGridSize)].map((e, key) => (
+          <div key={key}>{key + 1}</div>
+        ))}
+      </NumberGrid>
+      <ProcessGrid numOfProcesses={processCount} maxGridTime={maxGridSize}>
+        {[...Array(processCount)].map((e, key) => (
+          <div
+            style={{
+              gridColumn: `${1 + gridData.processes[key].arrivalTime} / ${
+                gridData.processes[key].totalCPUTime
+              }`,
+              gridRow: `${key + 1}`,
+            }}
+            key={key}
+          >
+            p{key}
+          </div>
+        ))}
+      </ProcessGrid>
+    </div>
   );
 };
