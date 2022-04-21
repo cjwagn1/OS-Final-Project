@@ -48,11 +48,13 @@ function App() {
         break;
       }
       case "SJF": {
-        SJF();
+        setAlgoData(SJF());
+        setCounter(0);
         break;
       }
       case "SRT": {
-        SRT();
+        setAlgoData(SRT());
+        setCounter(0);
         break;
       }
       case "RR": {

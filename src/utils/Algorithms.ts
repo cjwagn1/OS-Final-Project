@@ -139,6 +139,11 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
 // export const SJF = (...args: Process[]) => {
 export const SJF = (args: Process[] = [p1, p2, p3]) => {
   // complete is true when all processes are done
+
+  //carters untyped stuff
+  const SJFGridData: any = [];
+  //-------
+
   let complete: boolean = false;
   let copyArgs: Process[] = [];
   let queue: Process[] = [];
@@ -147,7 +152,7 @@ export const SJF = (args: Process[] = [p1, p2, p3]) => {
   let timer: number = 0;
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
-
+  let runningProcessIterator: number = 0;
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
   args.forEach((process) => copyArgs.push(Object.assign({}, process)));
@@ -181,7 +186,15 @@ export const SJF = (args: Process[] = [p1, p2, p3]) => {
       if (queue.length > 0) {
         running = true;
         runningProcess = queue.shift()!;
+        SJFGridData.push(runningProcess);
+        SJFGridData[runningProcessIterator].processCount = numOfProcesses;
+        SJFGridData[runningProcessIterator].line = parseInt(
+          SJFGridData[runningProcessIterator].name.replace(/\D/g, "")
+        );
+
         console.log("%s is running at time %d", runningProcess.name, timer);
+
+        SJFGridData[runningProcessIterator].startTime = timer;
       } else {
         console.log("nothing is running at time %d", timer);
       }
@@ -205,7 +218,9 @@ export const SJF = (args: Process[] = [p1, p2, p3]) => {
           runningProcess.name,
           timer
         );
+        SJFGridData[runningProcessIterator].endTime = timer;
         avgTurnaroundTime += runningProcess.turnaroundTime;
+        runningProcessIterator++;
         console.log(runningProcess);
       }
     }
@@ -223,6 +238,7 @@ export const SJF = (args: Process[] = [p1, p2, p3]) => {
       console.log("Average Turnaround Time: %f", avgTurnaroundTime);
     }
   }
+  return SJFGridData;
 };
 
 // Shortest Remaining Time:
@@ -233,6 +249,11 @@ export const SJF = (args: Process[] = [p1, p2, p3]) => {
 // export const SRT = (...args: Process[]) => {
 export const SRT = (args: Process[] = [p1, p2, p3]) => {
   // complete is true when all processes are done
+
+  //carters untyped stuff
+  const SRTGridData: any = [];
+  //-------
+
   let complete: boolean = false;
   let copyArgs: Process[] = [];
   let queue: Process[] = [];
@@ -243,6 +264,7 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
   const numOfProcesses: number = args.length;
   let addedProcess: boolean = false;
   let temp: Process;
+  let runningProcessIterator: number = 0;
 
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
@@ -279,9 +301,20 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
     if (addedProcess && running === true) {
       if (queue[0].remainingCPUTime < runningProcess.remainingCPUTime) {
         // swap the current running process and the process first in queue
+        SRTGridData[runningProcessIterator].endTime = timer;
+        console.log("NUZZLE", timer);
+        console.log("NUZZLE2", SRTGridData[runningProcessIterator]);
+        runningProcessIterator++;
+
         temp = runningProcess;
         console.log("%s is moved back to queue at time %d", temp.name, timer);
+
         runningProcess = queue.shift()!;
+        SRTGridData.push(runningProcess);
+        SRTGridData[runningProcessIterator].processCount = numOfProcesses;
+        SRTGridData[runningProcessIterator].line = parseInt(
+          SRTGridData[runningProcessIterator].name.replace(/\D/g, "")
+        );
         console.log("%s is running at time %d", runningProcess.name, timer);
         queue.push(temp);
 
@@ -299,6 +332,11 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
       if (queue.length > 0) {
         running = true;
         runningProcess = queue.shift()!;
+        SRTGridData.push(runningProcess);
+        SRTGridData[runningProcessIterator].processCount = numOfProcesses;
+        SRTGridData[runningProcessIterator].line = parseInt(
+          SRTGridData[runningProcessIterator].name.replace(/\D/g, "")
+        );
         console.log("%s is running at time %d", runningProcess.name, timer);
       } else {
         console.log("nothing is running at time %d", timer);
@@ -324,6 +362,8 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
           timer
         );
         avgTurnaroundTime += runningProcess.turnaroundTime;
+        SRTGridData[runningProcessIterator].endTime = timer;
+        runningProcessIterator++;
         console.log(runningProcess);
       }
     }
@@ -341,6 +381,8 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
       console.log("Average Turnaround Time: %f", avgTurnaroundTime);
     }
   }
+
+  return SRTGridData;
 };
 
 // Round Robin:

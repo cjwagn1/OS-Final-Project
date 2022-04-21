@@ -91,7 +91,12 @@ export default ({
     <div>
       <NumberGrid maxGridTime={maxGridSize}>
         {[...Array(maxGridSize)].map((e, key) => (
-          <div key={key}>{key + 1}</div>
+          <div
+            style={{ color: `${counter === key + 1 ? "blue" : "red"}` }}
+            key={key}
+          >
+            {key + 1}
+          </div>
         ))}
       </NumberGrid>
 
