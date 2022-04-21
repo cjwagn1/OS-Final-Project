@@ -6,6 +6,10 @@ class Process {
   totalCPUTime: number;
   remainingCPUTime: number;
   turnaroundTime: number;
+  startTime: number;
+  endTime: number;
+  line: number;
+  processCount: number;
 
   constructor(name: string, arrival: number, total: number) {
     this.name = name;
@@ -13,6 +17,10 @@ class Process {
     this.totalCPUTime = total;
     this.remainingCPUTime = total;
     this.turnaroundTime = 0;
+    this.startTime = 0;
+    this.endTime = 0;
+    this.line = 0;
+    this.processCount = 0;
   }
 }
 
@@ -20,25 +28,37 @@ export const p1 = new Process("p1", 3, 2);
 export const p2 = new Process("p2", 2, 6);
 export const p3 = new Process("p3", 0, 2);
 
+export const gridData = [p1, p2, p3];
+
 // export const FIFO = (...args: Process[]) => {
 export const FIFO = (args: Process[] = [p1, p2, p3]) => {
   // complete is true when all processes are done
+
+  //carters untyped stuff
+  const FIFOGridData: any = [];
+  //-------
+
   let complete: boolean = false;
   let queue: Process[] = []; // shallow copy of args
   let running: boolean = false;
   let runningProcess!: Process;
   let timer: number = 0;
+  let runningProcessIterator: number = 0;
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
 
   // copy args to queue
   args.forEach((process) => queue.push(Object.assign({}, process)));
+  // for (let i = 0; i < args.length; i++) {
+  //   FIFOGridData[args[i].name] = args[i];
+  // }
 
   // sort queue based on arrival time:
   //  - if 1 is returned, p2 is sorted before p1 (p2.arrival < p1.arrival)
   //  - if -1 is returned, p1 is sorted before p2 (p1.arrival < p2.arrival)
   queue.sort((p1, p2) => (p1.arrivalTime >= p2.arrivalTime ? 1 : -1));
-  console.log(queue);
+  // FIFOGridData.push(queue);
+  console.log("hello", queue[0]);
 
   // run until all processes are finished running
   while (!complete) {
@@ -50,7 +70,17 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
         if (queue[0].arrivalTime <= timer) {
           running = true;
           runningProcess = queue.shift()!;
+
+          FIFOGridData.push(runningProcess);
+          FIFOGridData[runningProcessIterator].processCount = numOfProcesses;
+          FIFOGridData[runningProcessIterator].line = parseInt(
+            FIFOGridData[runningProcessIterator].name.replace(/\D/g, "")
+          );
+
           console.log("%s is running at time %d", runningProcess.name, timer);
+          FIFOGridData[runningProcessIterator].startTime = timer;
+
+          console.log("im going now", FIFOGridData[runningProcess.name]);
         } else {
           console.log("nothing is running at time %d", timer);
         }
@@ -67,6 +97,7 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
     if (running === true) {
       // decrement remaining time of running process
       runningProcess.remainingCPUTime--;
+      // console.log(runningProcess);
 
       // do we need a new process?
       if (runningProcess.remainingCPUTime === 0) {
@@ -77,8 +108,14 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
           runningProcess.name,
           timer
         );
+        FIFOGridData[runningProcessIterator].endTime = timer;
         avgTurnaroundTime += runningProcess.turnaroundTime;
-        console.log(runningProcess);
+        runningProcessIterator++;
+
+        // FIFOGridData.push([runningProcess, timer]);
+        // FIFOGridData[runningProcess.name] = FIFOGridData[
+        //   runningProcess.name
+        // ].arrivalTime = timer;
       }
     }
 
@@ -91,6 +128,9 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
       console.log("Average Turnaround Time: %f", avgTurnaroundTime);
     }
   }
+
+  console.log("DATA HERE:", FIFOGridData);
+  return FIFOGridData;
 };
 
 // Shortest Job First:

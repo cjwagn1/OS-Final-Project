@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled, { AnyStyledComponent } from "styled-components";
-import gridData from "../../utils/initialGridData.json";
-import { motion } from "framer-motion";
+import { gridData } from "../../utils/Algorithms";
+// import ProcessItem from "../../utils/types";
+// import { motion } from "framer-motion";
 
 interface IProcessGridProps {
   numOfProcesses: number;
   maxGridTime: number;
+}
+
+interface IVisualizerProps {
+  algorithmGridData: { [key: string]: any };
+  counter: any;
+  currentTimer: any;
 }
 
 const ProcessGrid: AnyStyledComponent = styled.div`
@@ -44,19 +51,42 @@ const NumberGrid: AnyStyledComponent = styled.div`
   }
 `;
 
-export default () => {
-  const processCount = Object.keys(gridData.processes).length;
+export default ({
+  algorithmGridData,
+  counter,
+  currentTimer,
+}: IVisualizerProps) => {
+  const [algoTimedData, setAlgoTimedData]: any[] = useState([]);
+  const processCount = algorithmGridData[0].processCount;
+
   let maxGridSize = 0;
 
+  useEffect(() => {
+    for (let i = 0; i < algorithmGridData.length; i++) {
+      if (counter === algorithmGridData[i].startTime) {
+        setAlgoTimedData((oldArray: any) => [
+          ...oldArray,
+          algorithmGridData[i],
+        ]);
+      }
+    }
+
+    if (counter === 10) {
+      clearInterval(currentTimer);
+    }
+
+    // console.log(counter);
+  }, [algorithmGridData, counter, currentTimer]);
+
   //add up all CPU time to get perfect grid size
-  gridData.processes.forEach((process) => {
+  gridData.forEach((process) => {
     Object.entries(process).forEach(([key, value]) => {
       if (key === "totalCPUTime") {
         maxGridSize = maxGridSize + value;
       }
     });
   });
-
+  // console.log(algoTimedData);
   return (
     <div>
       <NumberGrid maxGridTime={maxGridSize}>
@@ -64,18 +94,19 @@ export default () => {
           <div key={key}>{key + 1}</div>
         ))}
       </NumberGrid>
+
       <ProcessGrid numOfProcesses={processCount} maxGridTime={maxGridSize}>
-        {[...Array(processCount)].map((e, key) => (
+        {[...Array(algoTimedData.length)].map((e, key) => (
           <div
             style={{
-              gridColumn: `${1 + gridData.processes[key].arrivalTime} / ${
-                gridData.processes[key].totalCPUTime
+              gridColumn: `${1 + algoTimedData[key].startTime} / ${
+                algoTimedData[key].endTime + 1
               }`,
-              gridRow: `${key + 1}`,
+              gridRow: `${algoTimedData[key].line}`,
             }}
             key={key}
           >
-            p{key}
+            {algoTimedData[key].name}
           </div>
         ))}
       </ProcessGrid>
