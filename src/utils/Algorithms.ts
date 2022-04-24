@@ -263,7 +263,7 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
   let addedProcess: boolean = false;
-  let temp: Process;
+  let temp: Process = new Process("temp", 0, 0);
   let runningProcessIterator: number = 0;
 
   // copy args so we don't modify the processes (useful when multile algos
@@ -302,11 +302,19 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
       if (queue[0].remainingCPUTime < runningProcess.remainingCPUTime) {
         // swap the current running process and the process first in queue
         SRTGridData[runningProcessIterator].endTime = timer;
-        console.log("NUZZLE", timer);
-        console.log("NUZZLE2", SRTGridData[runningProcessIterator]);
+
         runningProcessIterator++;
 
-        temp = runningProcess;
+        temp.arrivalTime = runningProcess.arrivalTime;
+        temp.endTime = runningProcess.endTime;
+        temp.line = runningProcess.line;
+        temp.name = runningProcess.name;
+        temp.processCount = runningProcess.processCount;
+        temp.remainingCPUTime = runningProcess.remainingCPUTime;
+        temp.totalCPUTime = runningProcess.totalCPUTime;
+        temp.turnaroundTime = runningProcess.turnaroundTime;
+        temp.startTime = runningProcess.startTime;
+
         console.log("%s is moved back to queue at time %d", temp.name, timer);
 
         runningProcess = queue.shift()!;
@@ -315,6 +323,7 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
         SRTGridData[runningProcessIterator].line = parseInt(
           SRTGridData[runningProcessIterator].name.replace(/\D/g, "")
         );
+        SRTGridData[runningProcessIterator].startTime = timer;
         console.log("%s is running at time %d", runningProcess.name, timer);
         queue.push(temp);
 
@@ -337,6 +346,7 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
         SRTGridData[runningProcessIterator].line = parseInt(
           SRTGridData[runningProcessIterator].name.replace(/\D/g, "")
         );
+        SRTGridData[runningProcessIterator].startTime = timer;
         console.log("%s is running at time %d", runningProcess.name, timer);
       } else {
         console.log("nothing is running at time %d", timer);
@@ -393,6 +403,8 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
 // export const RR = (...args: Process[], timeQuantum: number) => {
 export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
   // complete is true when all processes are done
+  const RRGridData: any = [];
+
   let complete: boolean = false;
   let copyArgs: Process[] = [];
   let queue: Process[] = [];
@@ -402,7 +414,8 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
   let counter: number = 0;
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
-  let temp: Process;
+  let temp: Process = new Process("temp", 0, 0);
+  let runningProcessIterator: number = 0;
 
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
@@ -429,6 +442,13 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
         running = true;
         runningProcess = queue.shift()!;
         console.log("%s is running at time %d", runningProcess.name, timer);
+
+        RRGridData.push(runningProcess);
+        RRGridData[runningProcessIterator].processCount = numOfProcesses;
+        RRGridData[runningProcessIterator].line = parseInt(
+          RRGridData[runningProcessIterator].name.replace(/\D/g, "")
+        );
+        RRGridData[runningProcessIterator].startTime = timer;
       } else {
         console.log("nothing is running at time %d", timer);
       }
@@ -455,7 +475,11 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
           runningProcess.name,
           timer
         );
+
         avgTurnaroundTime += runningProcess.turnaroundTime;
+
+        RRGridData[runningProcessIterator].endTime = timer;
+        runningProcessIterator++;
         console.log(runningProcess);
 
         // reset counter since the process is no longer running
@@ -464,9 +488,30 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
 
       // swap the process if we've reached the next time quantum
       if (counter === timeQuantum && queue.length > 0) {
-        temp = runningProcess;
+        RRGridData[runningProcessIterator].endTime = timer;
+
+        runningProcessIterator++;
+
+        temp.arrivalTime = runningProcess.arrivalTime;
+        temp.endTime = runningProcess.endTime;
+        temp.line = runningProcess.line;
+        temp.name = runningProcess.name;
+        temp.processCount = runningProcess.processCount;
+        temp.remainingCPUTime = runningProcess.remainingCPUTime;
+        temp.totalCPUTime = runningProcess.totalCPUTime;
+        temp.turnaroundTime = runningProcess.turnaroundTime;
+        temp.startTime = runningProcess.startTime;
+
         console.log("%s is moved back to queue at time %d", temp.name, timer);
         runningProcess = queue.shift()!;
+
+        RRGridData.push(runningProcess);
+        RRGridData[runningProcessIterator].processCount = numOfProcesses;
+        RRGridData[runningProcessIterator].line = parseInt(
+          RRGridData[runningProcessIterator].name.replace(/\D/g, "")
+        );
+        RRGridData[runningProcessIterator].startTime = timer;
+
         console.log("%s is running at time %d", runningProcess.name, timer);
         queue.push(temp);
       } else if (counter === timeQuantum && queue.length === 0) {
@@ -490,4 +535,5 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
       console.log("Average Turnaround Time: %f", avgTurnaroundTime);
     }
   }
+  return RRGridData;
 };

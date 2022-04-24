@@ -58,7 +58,9 @@ function App() {
         break;
       }
       case "RR": {
-        RR(1); // have to give it a time quantum
+        // have to give it a time quantum
+        setAlgoData(RR(1));
+        setCounter(0);
         break;
       }
     }
