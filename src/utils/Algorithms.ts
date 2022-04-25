@@ -1,6 +1,6 @@
 // import React, { useState } from "react";
 
-class Process {
+export class Process {
   name: string;
   arrivalTime: number;
   totalCPUTime: number;
@@ -10,6 +10,7 @@ class Process {
   endTime: number;
   line: number;
   processCount: number;
+  color: string;
 
   constructor(name: string, arrival: number, total: number) {
     this.name = name;
@@ -21,17 +22,18 @@ class Process {
     this.endTime = 0;
     this.line = 0;
     this.processCount = 0;
+    this.color = "#2D3047";
   }
 }
 
-export const p1 = new Process("p1", 3, 2);
-export const p2 = new Process("p2", 2, 6);
-export const p3 = new Process("p3", 0, 2);
+export const p1 = new Process("p1", 1, 6);
+export const p2 = new Process("p2", 2, 3);
+export const p3 = new Process("p3", 4, 2);
 
 export const gridData = [p1, p2, p3];
 
 // export const FIFO = (...args: Process[]) => {
-export const FIFO = (args: Process[] = [p1, p2, p3]) => {
+export const FIFO = (args: Process[]) => {
   // complete is true when all processes are done
 
   //carters untyped stuff
@@ -79,8 +81,6 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
 
           console.log("%s is running at time %d", runningProcess.name, timer);
           FIFOGridData[runningProcessIterator].startTime = timer;
-
-          console.log("im going now", FIFOGridData[runningProcess.name]);
         } else {
           console.log("nothing is running at time %d", timer);
         }
@@ -137,7 +137,7 @@ export const FIFO = (args: Process[] = [p1, p2, p3]) => {
 // With the SJF algorithm, there is no pre-emption. A process will run until
 // it is completely done, then the next process in the queue will run.
 // export const SJF = (...args: Process[]) => {
-export const SJF = (args: Process[] = [p1, p2, p3]) => {
+export const SJF = (args: Process[]) => {
   // complete is true when all processes are done
 
   //carters untyped stuff
@@ -247,7 +247,7 @@ export const SJF = (args: Process[] = [p1, p2, p3]) => {
 // SJF so it can stop the currently executing process if a newly arrived
 // process requires less total CPU Time.
 // export const SRT = (...args: Process[]) => {
-export const SRT = (args: Process[] = [p1, p2, p3]) => {
+export const SRT = (args: Process[]) => {
   // complete is true when all processes are done
 
   //carters untyped stuff
@@ -401,7 +401,7 @@ export const SRT = (args: Process[] = [p1, p2, p3]) => {
 // from running to the queue, it will be placed at the bottom. Time quantum
 // can be changed by user
 // export const RR = (...args: Process[], timeQuantum: number) => {
-export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
+export const RR = (timeQuantum: number, args: Process[]) => {
   // complete is true when all processes are done
   const RRGridData: any = [];
 
@@ -420,7 +420,7 @@ export const RR = (timeQuantum: number, args: Process[] = [p1, p2, p3]) => {
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
   args.forEach((process) => copyArgs.push(Object.assign({}, process)));
-
+  console.log("time quantum:", timeQuantum);
   // run until all processes are finished running
   while (!complete) {
     // if a process has arrived, add it to the queue
