@@ -1,0 +1,1 @@
+{"version":3,"sources":["App.css"],"names":[],"mappings":"AAEA,KACE,QACF","file":"main.f6997683.chunk.css","sourcesContent":["@import \"~antd/dist/antd.css\";\r\n\r\nbody {\r\n  margin: 0;\r\n}\r\n"]}
