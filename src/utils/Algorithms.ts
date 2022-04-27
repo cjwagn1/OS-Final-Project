@@ -153,6 +153,8 @@ export const SJF = (args: Process[]) => {
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
   let runningProcessIterator: number = 0;
+  let remainingProcesses: number = args.length;
+
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
   args.forEach((process) => copyArgs.push(Object.assign({}, process)));
@@ -166,8 +168,8 @@ export const SJF = (args: Process[]) => {
         // add to queue
         queue.push(copyArgs[i]);
 
-        // remove from copyArgs list
-        copyArgs.splice(i, 1);
+        // decrement number of remaining processes
+        remainingProcesses--;
 
         if (queue.length > 1) {
           // re-order if necessary
@@ -229,7 +231,7 @@ export const SJF = (args: Process[]) => {
     //  - ready queue is empty
     //  - there isn't anything running
     //  - there aren't any more processes waiting to arrive
-    if (queue.length === 0 && running === false && copyArgs.length === 0) {
+    if (queue.length === 0 && running === false && remainingProcesses === 0) {
       complete = true;
       console.log("we're done!");
       console.log("Total Time: %d", timer);
@@ -265,6 +267,7 @@ export const SRT = (args: Process[]) => {
   let addedProcess: boolean = false;
   let temp: Process = new Process("temp", 0, 0);
   let runningProcessIterator: number = 0;
+  let remainingProcesses: number = args.length;
 
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
@@ -282,14 +285,14 @@ export const SRT = (args: Process[]) => {
         queue.push(copyArgs[i]);
         addedProcess = true;
 
-        // remove from copyArgs list
-        copyArgs.splice(i, 1);
+        // decrement number of remaining processes
+        remainingProcesses--;
 
         if (queue.length > 1) {
           // re-order if necessary
           //  - if 1 is returned, p2 is sorted before p1 (p2.total < p1.total)
           //  - if -1 is returned, p1 is sorted before p2 (p1.total < p2.total)
-          queue.sort((p1, p2) => (p1.totalCPUTime >= p2.totalCPUTime ? 1 : -1));
+          queue.sort((p1, p2) => (p1.remainingCPUTime >= p2.remainingCPUTime ? 1 : -1));
           // console.log(queue);
         }
       }
@@ -329,7 +332,7 @@ export const SRT = (args: Process[]) => {
 
         // re-order queue if necessary
         if (queue.length > 1) {
-          queue.sort((p1, p2) => (p1.totalCPUTime >= p2.totalCPUTime ? 1 : -1));
+          queue.sort((p1, p2) => (p1.remainingCPUTime >= p2.remainingCPUTime ? 1 : -1));
         }
       }
     }
@@ -382,7 +385,7 @@ export const SRT = (args: Process[]) => {
     //  - ready queue is empty
     //  - there isn't anything running
     //  - there aren't any more processes waiting to arrive
-    if (queue.length === 0 && running === false && copyArgs.length === 0) {
+    if (queue.length === 0 && running === false && remainingProcesses === 0) {
       complete = true;
       console.log("we're done!");
       console.log("Total Time: %d", timer);
@@ -416,6 +419,7 @@ export const RR = (timeQuantum: number, args: Process[]) => {
   const numOfProcesses: number = args.length;
   let temp: Process = new Process("temp", 0, 0);
   let runningProcessIterator: number = 0;
+  let remainingProcesses: number = args.length;
 
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
@@ -429,8 +433,8 @@ export const RR = (timeQuantum: number, args: Process[]) => {
         // add to queue
         queue.push(copyArgs[i]);
 
-        // remove from copyArgs list
-        copyArgs.splice(i, 1);
+        // decrement number of remaining processes
+        remainingProcesses--;
       }
     }
 
@@ -526,7 +530,7 @@ export const RR = (timeQuantum: number, args: Process[]) => {
     //  - ready queue is empty
     //  - there isn't anything running
     //  - there aren't any more processes waiting to arrive
-    if (queue.length === 0 && running === false && copyArgs.length === 0) {
+    if (queue.length === 0 && running === false && remainingProcesses === 0) {
       complete = true;
       console.log("we're done!");
       console.log("Total Time: %d", timer);
