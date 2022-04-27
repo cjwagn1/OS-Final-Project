@@ -32,7 +32,6 @@ export const p3 = new Process("p3", 4, 2);
 
 export const gridData = [p1, p2, p3];
 
-// export const FIFO = (...args: Process[]) => {
 export const FIFO = (args: Process[]) => {
   // complete is true when all processes are done
 
@@ -136,7 +135,6 @@ export const FIFO = (args: Process[]) => {
 // Shortest Job First:
 // With the SJF algorithm, there is no pre-emption. A process will run until
 // it is completely done, then the next process in the queue will run.
-// export const SJF = (...args: Process[]) => {
 export const SJF = (args: Process[]) => {
   // complete is true when all processes are done
 
@@ -153,6 +151,8 @@ export const SJF = (args: Process[]) => {
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
   let runningProcessIterator: number = 0;
+  let remainingProcesses: number = args.length;
+
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
   args.forEach((process) => copyArgs.push(Object.assign({}, process)));
@@ -166,8 +166,8 @@ export const SJF = (args: Process[]) => {
         // add to queue
         queue.push(copyArgs[i]);
 
-        // remove from copyArgs list
-        copyArgs.splice(i, 1);
+        // decrement number of remaining processes
+        remainingProcesses--;
 
         if (queue.length > 1) {
           // re-order if necessary
@@ -229,7 +229,7 @@ export const SJF = (args: Process[]) => {
     //  - ready queue is empty
     //  - there isn't anything running
     //  - there aren't any more processes waiting to arrive
-    if (queue.length === 0 && running === false && copyArgs.length === 0) {
+    if (queue.length === 0 && running === false && remainingProcesses === 0) {
       complete = true;
       console.log("we're done!");
       console.log("Total Time: %d", timer);
@@ -246,10 +246,7 @@ export const SJF = (args: Process[]) => {
 // arrives or when a process completes. This is the pre-emptive version of
 // SJF so it can stop the currently executing process if a newly arrived
 // process requires less total CPU Time.
-// export const SRT = (...args: Process[]) => {
 export const SRT = (args: Process[]) => {
-  // complete is true when all processes are done
-
   //carters untyped stuff
   const SRTGridData: any = [];
   //-------
@@ -263,8 +260,8 @@ export const SRT = (args: Process[]) => {
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
   let addedProcess: boolean = false;
-  let temp: Process = new Process("temp", 0, 0);
   let runningProcessIterator: number = 0;
+  let remainingProcesses: number = args.length;
 
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
@@ -282,14 +279,14 @@ export const SRT = (args: Process[]) => {
         queue.push(copyArgs[i]);
         addedProcess = true;
 
-        // remove from copyArgs list
-        copyArgs.splice(i, 1);
+        // decrement number of remaining processes
+        remainingProcesses--;
 
         if (queue.length > 1) {
           // re-order if necessary
           //  - if 1 is returned, p2 is sorted before p1 (p2.total < p1.total)
           //  - if -1 is returned, p1 is sorted before p2 (p1.total < p2.total)
-          queue.sort((p1, p2) => (p1.totalCPUTime >= p2.totalCPUTime ? 1 : -1));
+          queue.sort((p1, p2) => (p1.remainingCPUTime >= p2.remainingCPUTime ? 1 : -1));
           // console.log(queue);
         }
       }
@@ -305,6 +302,7 @@ export const SRT = (args: Process[]) => {
 
         runningProcessIterator++;
 
+        const temp: Process = new Process("temp", 0, 0);
         temp.arrivalTime = runningProcess.arrivalTime;
         temp.endTime = runningProcess.endTime;
         temp.line = runningProcess.line;
@@ -316,6 +314,7 @@ export const SRT = (args: Process[]) => {
         temp.startTime = runningProcess.startTime;
 
         console.log("%s is moved back to queue at time %d", temp.name, timer);
+        queue.push(temp);
 
         runningProcess = queue.shift()!;
         SRTGridData.push(runningProcess);
@@ -324,12 +323,12 @@ export const SRT = (args: Process[]) => {
           SRTGridData[runningProcessIterator].name.replace(/\D/g, "")
         );
         SRTGridData[runningProcessIterator].startTime = timer;
+
         console.log("%s is running at time %d", runningProcess.name, timer);
-        queue.push(temp);
 
         // re-order queue if necessary
         if (queue.length > 1) {
-          queue.sort((p1, p2) => (p1.totalCPUTime >= p2.totalCPUTime ? 1 : -1));
+          queue.sort((p1, p2) => (p1.remainingCPUTime >= p2.remainingCPUTime ? 1 : -1));
         }
       }
     }
@@ -382,7 +381,7 @@ export const SRT = (args: Process[]) => {
     //  - ready queue is empty
     //  - there isn't anything running
     //  - there aren't any more processes waiting to arrive
-    if (queue.length === 0 && running === false && copyArgs.length === 0) {
+    if (queue.length === 0 && running === false && remainingProcesses === 0) {
       complete = true;
       console.log("we're done!");
       console.log("Total Time: %d", timer);
@@ -400,9 +399,7 @@ export const SRT = (args: Process[]) => {
 // and swapped with a process in the ready queue. When a process is moved
 // from running to the queue, it will be placed at the bottom. Time quantum
 // can be changed by user
-// export const RR = (...args: Process[], timeQuantum: number) => {
 export const RR = (timeQuantum: number, args: Process[]) => {
-  // complete is true when all processes are done
   const RRGridData: any = [];
 
   let complete: boolean = false;
@@ -414,8 +411,8 @@ export const RR = (timeQuantum: number, args: Process[]) => {
   let counter: number = 0;
   let avgTurnaroundTime: number = 0;
   const numOfProcesses: number = args.length;
-  let temp: Process = new Process("temp", 0, 0);
   let runningProcessIterator: number = 0;
+  let remainingProcesses: number = args.length;
 
   // copy args so we don't modify the processes (useful when multile algos
   // are running with the same processes)
@@ -429,8 +426,8 @@ export const RR = (timeQuantum: number, args: Process[]) => {
         // add to queue
         queue.push(copyArgs[i]);
 
-        // remove from copyArgs list
-        copyArgs.splice(i, 1);
+        // decrement number of remaining processes
+        remainingProcesses--;
       }
     }
 
@@ -465,6 +462,7 @@ export const RR = (timeQuantum: number, args: Process[]) => {
 
       // increment counter to determine when we reach a time quantum
       counter++;
+      console.log(counter);
 
       // is the process done?
       if (runningProcess.remainingCPUTime === 0) {
@@ -492,6 +490,7 @@ export const RR = (timeQuantum: number, args: Process[]) => {
 
         runningProcessIterator++;
 
+        const temp: Process = new Process("temp", 0, 0);
         temp.arrivalTime = runningProcess.arrivalTime;
         temp.endTime = runningProcess.endTime;
         temp.line = runningProcess.line;
@@ -502,9 +501,11 @@ export const RR = (timeQuantum: number, args: Process[]) => {
         temp.turnaroundTime = runningProcess.turnaroundTime;
         temp.startTime = runningProcess.startTime;
 
-        console.log("%s is moved back to queue at time %d", temp.name, timer);
-        runningProcess = queue.shift()!;
+        console.log("%s is moved back to queue at time %d", runningProcess.name, timer);
+        queue.push(temp);
+        console.log(queue[0]);
 
+        runningProcess = queue.shift()!;
         RRGridData.push(runningProcess);
         RRGridData[runningProcessIterator].processCount = numOfProcesses;
         RRGridData[runningProcessIterator].line = parseInt(
@@ -513,7 +514,9 @@ export const RR = (timeQuantum: number, args: Process[]) => {
         RRGridData[runningProcessIterator].startTime = timer;
 
         console.log("%s is running at time %d", runningProcess.name, timer);
-        queue.push(temp);
+
+        // reset counter since the process running is a new process
+        counter = 0;
       } else if (counter === timeQuantum && queue.length === 0) {
         // reset counter so we make sure we keep checking for a swap
         // at each time quantum
@@ -526,7 +529,7 @@ export const RR = (timeQuantum: number, args: Process[]) => {
     //  - ready queue is empty
     //  - there isn't anything running
     //  - there aren't any more processes waiting to arrive
-    if (queue.length === 0 && running === false && copyArgs.length === 0) {
+    if (queue.length === 0 && running === false && remainingProcesses === 0) {
       complete = true;
       console.log("we're done!");
       console.log("Total Time: %d", timer);

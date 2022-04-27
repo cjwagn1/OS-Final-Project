@@ -23,7 +23,7 @@ const VisualizerGroup: AnyStyledComponent = styled.div`
 const AlgoButton: AnyStyledComponent = styled.button`
   margin: 5px;
   margin-left: 20px;
-  margin-right: 20px~;
+  margin-right: 20px;
   background-color: #ff9b71;
   border: none;
   font-size: 20px;
